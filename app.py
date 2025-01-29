@@ -12,6 +12,7 @@ db = SQLAlchemy(app)
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(200), nullable=False)
+    completed = db.Column(db.Boolean, default=False)  # 완료 여부 추가
 
 # 데이터베이스 초기화
 with app.app_context():
@@ -39,6 +40,15 @@ def delete_task(task_id):
     task = Task.query.get(task_id)
     if task:
         db.session.delete(task)
+        db.session.commit()
+    return redirect(url_for('index'))
+
+# 완료 상태 토글
+@app.route('/toggle/<int:task_id>')
+def toggle_task(task_id):
+    task = Task.query.get(task_id)
+    if task:
+        task.completed = not task.completed  # 완료 상태 변경
         db.session.commit()
     return redirect(url_for('index'))
 
